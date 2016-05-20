@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd 
+	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd 
+	http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd">
+	
+	<!-- 定义service实例 -->
+	<bean id="hello" class="com.hessian.dao.impl.HelloImpl"/>
+	
+	<!-- 代理普通接口IHello服务  客户端调用
+	<bean id="helloService" class="org.springframework.remoting.caucho.HessianProxyFactoryBean">
+		<property name="serviceUrl">
+			<value>http://127.0.0.1:8080/hessian/hello.service</value>
+		</property>
+		<property name="serviceInterface">
+			<value>com.hessian.dao.IHello</value>
+		</property>
+	</bean>-->
+	
+	
+	<!-- 导出一个hessian服务 -->
+	<bean id="hessianHelloService" class="org.springframework.remoting.caucho.HessianServiceExporter">
+		<property name="service" ref="hello"/>
+		<property name="serviceInterface" value="com.hessian.dao.IHello"/>
+	</bean>
+	
+	<!-- 主要任务是将hessian的请求转发给HessionService处理 -->
+	<!-- 配置URL映射，SimpleUrlHandlerMapping -->
+
+	<bean id = "urlMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<value>
+				/hello.service = hessianHelloService
+			</value>
+		</property>
+	</bean>
+</beans>
